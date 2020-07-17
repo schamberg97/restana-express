@@ -1,7 +1,7 @@
 {
-	"name": "restana-express",
-	"version": "1.0.1",
-	"description": "Partial Express.js compatibility layer for Restana.",
+	"name": "restana-express-compatibility",
+	"version": "1.0.0",
+	"description": "Express.js compatibility layer for Restana.",
 	"main": "index.js",
 	"scripts": {
 		"test": "PORT=3000 NODE_ENV=testing node ./node_modules/mocha/bin/mocha test/*.test.js"
