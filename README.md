@@ -22,14 +22,14 @@ MIT License
 ## Installation
 
 ```
-npm i --save restana-express
+npm i --save restana-express-compatibility
 ```
 
 ## Setting up the restana and middleware
 
 ```js
 	const restana = require('restana')
-	let restanaExpressCompatibilityMod = require('restana-express')
+	let restanaExpressCompatibilityMod = require('restana-express-compatibility')
 	let compatibilityLayerSettings = {
 		res: {
 			toUse: ['all'], // you can specify which res components you want. However, do take note that you may run into issues, if the component you use depends on another one, which you haven't specified
