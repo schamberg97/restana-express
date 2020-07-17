@@ -244,3 +244,7 @@ wrk -t8 -c64 -d5s http://localhost:PORT/hi/
 | Restana | 41640.20 | 276% |
 | Restana + restana-express | 25771.98 | 132% |
 | Express | 11067.00 | 0% |
+
+## Observations
+
+Take note that req properties are probably going to be the largest hit on performance. Consider disabling them, if it helps. Additionally, you are likely to see little performance gains in res.render, but that you are still going to have significant performance wins with requests that do not involve rendering (such as with static data, or POST requests)
