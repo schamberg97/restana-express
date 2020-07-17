@@ -1,9 +1,7 @@
 'use strict'
 
-var path = require('path')
-
-var expRes_ = require(path.resolve('./lib/res.js'))
-var expReq_ = require(path.resolve('./lib/req.js'))
+var expRes_ = require('./lib/res.js')
+var expReq_ = require('./lib/req.js')
 
 var expRes
 var expReq
