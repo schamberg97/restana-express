@@ -36,8 +36,9 @@ describe('Signed cookie', () => {
 	})
 
 	service.use('/cookie/signed/fail/*', restanaExpressCompatibility.middleware)
-	service.use('/cookie/signed/success/*', cookieParser('foo bar baz'))
+	
 	service.use('/cookie/signed/success/*', restanaExpressCompatibility.middleware)
+	service.use('/cookie/signed/success/*', cookieParser('foo bar baz'))
 
 	service.get('/cookie/signed/success/1', (req, res) => {
 		res.cookie('user', { name: 'tobi' }, { signed: true }).end();

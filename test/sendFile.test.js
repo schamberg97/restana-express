@@ -13,14 +13,15 @@ var utils = require('../test/support/utils');
 
 let startPort = parseInt(process.env.PORT)
 var server_
+var server
 let shallUnref = false
 
 describe('res', function () {
 
-  afterEach (async () => {
-    await server_.close().then(async() => {
+  afterEach(async () => {
+    await server_.close().then(async () => {
       if (shallUnref) {
-        await process._getActiveHandles().forEach(async(item) => {
+        await process._getActiveHandles().forEach(async (item) => {
           item.unref() // dirty trick for now
         })
       }
@@ -28,111 +29,172 @@ describe('res', function () {
   });
   describe('.sendFile(path)', async function () {
 
-    it('should error missing path', async function () {
-      let appCreate = await appCreateFn();
-      server_ = appCreate.app
+    it('should error missing path', function (done) {
+      appCreateFn().then((resolve, reject) => {
+        if (resolve) {
+          server_ = resolve.app
+          server = resolve.server
+          let app = resolve.app
 
-      request(appCreate.server)
-        .get('/')
-        .expect(500, /path.*required/)
+        }
+
+        request(server)
+          .get('/')
+          .expect(500, /path.*required/, done)
+      })
+
+
     });
 
-    it('should error for non-string path', async function () {
-      
-      let appCreate = await appCreateFn(42);
-      server_ = appCreate.app
+    it('should error for non-string path', function (done) {
 
-      request(appCreate.server)
-        .get('/')
-        .expect(500, /TypeError: path must be a string to res.sendFile/)
+      appCreateFn(42).then((resolve, reject) => {
+        if (resolve) {
+          server_ = resolve.app
+          server = resolve.server
+          let app = resolve.app
+
+        }
+
+        request(server)
+          .get('/')
+          .expect(500, (err, res) => {
+            done(assert.strictEqual(res.body.message, "path must be a string to res.sendFile"))
+          })
+      })
+
+
     })
 
-    it('should transfer a file', async function () {
-      
-      let appCreate = await appCreateFn(path.resolve(fixtures, 'name.txt'));
-      server_ = appCreate.app
+    it('should transfer a file', function (done) {
 
-      request(appCreate.server)
-        .get('/')
-        .expect(200, 'tobi');
-    });
+      appCreateFn(path.resolve(fixtures, 'name.txt')).then((resolve, reject) => {
+        if (resolve) {
+          server_ = resolve.app
+          server = resolve.server
+          let app = resolve.app
 
-    it('should transfer a file with special characters in string', async function () {
-      
-      let appCreate = await appCreateFn(path.resolve(fixtures, '% of dogs.txt'));
-      server_ = appCreate.app
+        }
 
-      request(appCreate.server)
-        .get('/')
-        .expect(200, '20%');
-    });
+        request(server)
+          .get('/')
+          .expect(200, 'tobi', done);
+      });
+    })
 
-    it('should include ETag', async function () {
-      
-      let appCreate = await appCreateFn(path.resolve(fixtures, 'name.txt'));
-      server_ = appCreate.app
 
-      request(appCreate.server)
-        .get('/')
-        .expect('ETag', /^(?:W\/)?"[^"]+"$/)
-        .expect(200, 'tobi');
-    });
 
-    it('should 304 when ETag matches', async function () {
-      
-      var appCreate = await appCreateFn(path.resolve(fixtures, 'name.txt'));
-      server_ = appCreate.app
+    it('should transfer a file with special characters in string', function (done) {
+      appCreateFn(path.resolve(fixtures, '% of dogs.txt')).then((resolve, reject) => {
+        if (resolve) {
+          server_ = resolve.app
+          server = resolve.server
+          let app = resolve.app
 
-      request(appCreate.server)
-        .get('/')
-        .expect('ETag', /^(?:W\/)?"[^"]+"$/)
-        .expect(200, 'tobi', function (err, res) {
-          if (err) throw new Error(err);
-          var etag = res.headers.etag;
-          request(appCreate.server)
-            .get('/')
-            .set('If-None-Match', etag)
-            .expect(304);
-        });
-    });
+        }
 
-    it('should 404 for directory', async function () {
-      
-      var appCreate = await appCreateFn(path.resolve(fixtures, 'blog'));
-      server_ = appCreate.app
-
-      request(appCreate.server)
-        .get('/')
-        .expect(404);
-    });
-
-    it('should 404 when not found', async function () {
-      var appCreate = await appCreateFn(path.resolve(fixtures, 'does-no-exist'));
-      server_ = appCreate.app
-
-      appCreate.app.use(function (req, res) {
-        res.statusCode = 200;
-        res.send('no!');
+        request(server)
+          .get('/')
+          .expect(200, '20%', done);
       });
 
-      request(appCreate.server)
-        .get('/')
-        .expect(404);
     });
 
-    it('should not override manual content-types', async function () {
-      shallUnref = true
-      var appCreate = await appCreateFn();
-      server_ = appCreate.app
+    it('should include ETag', function (done) {
 
-      appCreate.app.use(function (req, res) {
-        res.contentType('application/x-bogus');
-        res.sendFile(path.resolve(fixtures, 'name.txt'));
+      appCreateFn(path.resolve(fixtures, 'name.txt')).then((resolve, reject) => {
+        if (resolve) {
+          server_ = resolve.app
+          server = resolve.server
+          let app = resolve.app
+
+        }
+
+        request(server)
+          .get('/')
+          .expect('ETag', /^(?:W\/)?"[^"]+"$/)
+          .expect(200, 'tobi', done);
+      });
+    });
+
+    it('should 304 when ETag matches', function (done) {
+
+      appCreateFn(path.resolve(fixtures, 'name.txt')).then((resolve, reject) => {
+        if (resolve) {
+          server_ = resolve.app
+          server = resolve.server
+          let app = resolve.app
+
+        }
+
+        request(server)
+          .get('/')
+          .expect('ETag', /^(?:W\/)?"[^"]+"$/)
+          .expect(200, 'tobi', function (err, res) {
+            if (err) return done(err);
+            var etag = res.headers.etag;
+            request(server)
+              .get('/')
+              .set('If-None-Match', etag)
+              .expect(304, done);
+          });
       });
 
-      request(appCreate.server)
-        .get('/')
-        .expect('Content-Type', 'application/x-bogus')
+    });
+
+    it('should 404 for directory', function (done) {
+
+      appCreateFn(path.resolve(fixtures, 'blog')).then((resolve, reject) => {
+        if (resolve) {
+          server_ = resolve.app
+          server = resolve.server
+          let app = resolve.app
+
+        }
+        request(server)
+          .get('/')
+          .expect(404, done);
+      });
+
+    });
+
+    it('should 404 when not found', function (done) {
+      appCreateFn(path.resolve(fixtures, 'blog')).then((resolve, reject) => {
+        if (resolve) {
+          server_ = resolve.app
+          server = resolve.server
+          let app = resolve.app
+          app.use(function (req, res) {
+            res.statusCode = 200;
+            res.send('no!');
+          });
+        }
+
+        request(server)
+          .get('/')
+          .expect(404, done);
+      });
+
+    });
+
+    it('should not override manual content-types', function (done) {
+      //shallUnref = true
+      appCreateFn(null,null,null,true).then((resolve, reject) => {
+        if (resolve) {
+          server_ = resolve.app
+          server = resolve.server
+          let app = resolve.app
+          app.use(function (req, res) {
+            res.contentType('application/x-bogus');
+            res.sendFile(path.resolve(fixtures, 'name.txt'));
+          });
+        }
+
+        request(server)
+          .get('/')
+          .expect('Content-Type', 'application/x-bogus', done)
+      })
+
     })
   })
   // More express tests need to be ported, but for now - it's sufficient
@@ -144,7 +206,7 @@ describe('res', function () {
 
 
 
-async function appCreateFn(path, options, fn) {
+async function appCreateFn(path, options, fn, noDefaultAppUse) {
   var app = express();
   let server = await app.start(startPort)
   let restanaExpressCompatibilityMod = require(require('path').resolve(__dirname + '/../index.js'))
@@ -165,9 +227,11 @@ async function appCreateFn(path, options, fn) {
     }
   })
   app.use(restanaExpressCompatibility.middleware)
-  app.use(function (req, res) {
-    res.sendFile(path, options, fn);
-  });
+  if (!noDefaultAppUse) {
+    app.use(function (req, res) {
+      res.sendFile(path, options, fn);
+    });
+  }
   //startPort = startPort + 1
   return { app: app, server: server };
 }

@@ -6,6 +6,7 @@ let restanaExpressCompatibilityMod = require(compatibilityLayerPath)
 let compatibilityLayerSettings = {
 	res: {
 		toUse: ['all'],
+		toDisable: [],
 		render: {
 			viewsDir: path.resolve(__dirname + "/views/"),
 			renderExt: '.pug',
@@ -13,15 +14,15 @@ let compatibilityLayerSettings = {
 			//renderFunction: "__express"
 		},
 		etag: {
-			type: "weak",
-			maxCache: 1000
+			
 		}
 	},
 	req: {
-		toUse: 'all',
-		proxy: true,
+		toUse: ['all'],
+		propertiesAsFunctions: true,
 		proxyTrust: 'all',
-		//queryParser: "simple"
+		queryParser: "simple",
+		toDisable: []
 	}
 }
 
@@ -31,13 +32,9 @@ let restanaExpressCompatibility = new restanaExpressCompatibilityMod(compatibili
 app.use(restanaExpressCompatibility.middleware)
 
 app.get("/", function (req, res) {
-	res.send(req.subdomains);
+	res.locals.buffalo = true
+	res.send('');
 });
-
-app.use(function(req,res,next) {
-	res.locals.NO_ETAG=true;
-	next()
-})
 
 app.get('/json-only-query/', async (req,res) => {
 	
@@ -46,23 +43,18 @@ app.get('/json-only-query/', async (req,res) => {
 	})
 })
 
-app.get("/test/", function (req, res) {
-	res.send(req.xhr);
-});
-
-
 app.get('/json/', (req,res) => {
-	res.json({ip:req.ip, proto:req.protocol, fresh: req.fresh, 
+	res.json({ip:req.ip(), proto:req.protocol(), fresh: req.fresh(), 
 		query: req.query
 	})
 })
 
 app.get('/hi/', async (req, res) => {
-	res.send({
+	res.json({
 	  msg: 'Hello World!',
 	  query: req.query
 
 	})
   })
 
-let server = app.start(3003, '0.0.0.0')
+let server = app.start(3002, '0.0.0.0')
