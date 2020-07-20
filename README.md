@@ -360,8 +360,8 @@ By disabling this module and finding alternatives for your needs (if possible), 
 | --- | --- | --- | --- |
 | accepts | Yes | None | None | 
 | acceptsCharsets | Yes | None | None | 
-| acceptsEncodings Yes | None | None | 
-| acceptsLanguages Yes | None | None | 
+| acceptsEncodings | Yes | None | None | 
+| acceptsLanguages | Yes | None | None | 
 | get / header | Yes | None | req.range |
 | is | Yes | None | None |
 | param | Yes | req.params, req.body, req.query | None | 
