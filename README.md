@@ -18,7 +18,11 @@ However, see the table in Compatibility section
 
 # Version & Changes
 
-### 1.2.0 (current)
+### 1.2.1 (current)
+
+* Documentation update
+
+### 1.2.0
 
 * Numerous bugfixes
 * req methods and properties tests rewritten
