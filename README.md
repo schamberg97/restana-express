@@ -169,12 +169,8 @@ let compatibilityLayerSettings = {
 | app | <span style="color:red"> No </span> | Probably not going to be implemented |
 | baseUrl | <span style="color:red"> No </span> | Help is welcome |
 | headersSent | <span style="color:green"> Native </span> | Doesn't need reimplementation |
-| body | <span style="color:red"> No </span> | You may use body-parser middleware, since this is what express uses internally. 
-You can app.use (or abuse :D) it either before or immediately after restana-express |
-| cookies | <span style="color:red"> No, not in 
-restana-express itself.
-Please, see notes </span> | You should use cookie-parser middleware, 
-as this property is not implemented in Express itself. |
+| body | <span style="color:red"> No </span> | You may use body-parser middleware, since this is what express uses internally. You can app.use (or abuse :D) it either before or immediately after restana-express |
+| cookies | <span style="color:red"> No, not in restana-express itself. Please, see notes </span> | You should use cookie-parser middleware, as this property is not implemented in Express itself. |
 | fresh | <span style="color:green"> Yes </span> | N/A |
 | hostname | <span style="color:green"> Yes </span> | N/A |
 | ip | <span style="color:green"> Yes </span> | N/A |
@@ -183,19 +179,13 @@ as this property is not implemented in Express itself. |
 | originalUrl | <span style="color:green"> Native </span> | Does not need reimplementation |
 | path | <span style="color:green"> Native </span> | Does not need reimplementation |
 | protocol | <span style="color:green"> Yes </span> | N/A |
-| query | <span style="color:green"> Yes </span> | Set up the type of parser through compatibilityLayerSettings.req.queryParser, 
-before initializing and app.use'ing the middleware. 
-Accepts same values as express for this setting |
+| query | <span style="color:green"> Yes </span> | Set up the type of parser through compatibilityLayerSettings.req.queryParser, before initializing and app.use'ing the middleware. Accepts same values as express for this setting |
 | hostname | <span style="color:green"> Yes </span> | N/A |
 | route | <span style="color:red"> No </span> | Help is welcome |
 | secure | <span style="color:green"> Yes </span> | N/A |
-| signedCookies | <span style="color:red"> No, not in 
-restana-express itself.
-Please, see notes </span> | Check entry in this table on req.cookies |
+| signedCookies | <span style="color:red"> No, not in restana-express itself. Please, see notes </span> | Check entry in this table on req.cookies |
 | stale | <span style="color:green"> Yes </span> | N/A |
-| subdomains | <span style="color:green"> Yes </span> | subdomain offset is set either through 
-compatibilityLayerSettings.req.subdomainsOffset OR 
-compatibilityLayerSettings.req.subdomainOffset |
+| subdomains | <span style="color:green"> Yes </span> | subdomain offset is set either through compatibilityLayerSettings.req.subdomainsOffset OR compatibilityLayerSettings.req.subdomainOffset |
 | xhr | <span style="color:green"> Yes </span> | N/A |
 
 
@@ -302,6 +292,11 @@ For your convenience, there are dependency tables provided after the tips. Take 
 
 By disabling this module and finding alternatives for your needs (if possible), you are going to have a much faster application. It is highly likely you do not need all of the methods and properties offered by express and only need a subset. Find appropriate middleware for your needs or reimplement the required methods to suit your needs. Your app performance is gonna thank you. Moreover, you can limit the middleware only to specific routes, so that it is not run, where it is not needed.
 
+
+#### Dependency tables
+
+Please take note that this tables show as an indication possible. It is highly possible some mistakes could have been made, especially with Dependents column
+
 ##### Res properties
 
 | Property or object | Can be disabled? | Dependencies |
@@ -361,7 +356,7 @@ By disabling this module and finding alternatives for your needs (if possible), 
 | acceptsCharsets | Yes | None | None | 
 | acceptsEncodings | Yes | None | None | 
 | acceptsLanguages | Yes | None | None | 
-| get / header | Yes | None | req.range |
+| get / header | Yes | None | req.range, RES.location, req.protocol, req.hostname, req.xhr |
 | is | Yes | None | None |
 | param | Yes | req.params, req.body, req.query | None | 
 | range | Yes | req.get | None |
