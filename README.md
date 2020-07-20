@@ -26,7 +26,6 @@ However, see the table in Compatibility section
 * Req properties can be disabled and used as functions to increase performance (greatly)
 * Res.send is now more modified to be more compatible with express
 * Better etag support & ability to turn it off
-* Serve-static now included
 
 ### 1.0.1
 
