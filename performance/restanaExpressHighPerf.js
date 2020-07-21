@@ -32,7 +32,6 @@ let restanaExpressCompatibility = new restanaExpressCompatibilityMod(compatibili
 app.use(restanaExpressCompatibility.middleware)
 
 app.get("/", function (req, res) {
-	res.locals.buffalo = true
 	res.send('');
 });
 
