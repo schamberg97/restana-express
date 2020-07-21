@@ -299,7 +299,7 @@ By disabling this module and finding alternatives for your needs (if possible), 
 
 #### Dependency tables
 
-Please take note that this tables show as an indication possible. It is highly possible some mistakes could have been made, especially with Dependents column
+Please take note that these tables serve as an indication only. It is highly possible some mistakes could have been made, especially with Dependents column
 
 ##### Res properties
 
