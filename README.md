@@ -18,9 +18,9 @@ However, see the table in Compatibility section
 
 # Version & Changes
 
-### 1.2.1 (current)
+### 1.2.1, 1.2.2 (current)
 
-* Documentation update
+* Documentation updates
 
 ### 1.2.0
 
