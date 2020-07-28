@@ -30,14 +30,14 @@ var app = express();
 let restanaExpressCompatibility = new restanaExpressCompatibilityMod(compatibilityLayerSettings)
 app.use(restanaExpressCompatibility.middleware)
 
-app.get("/", function (req, res) {
-	res.send(req.subdomains);
-});
-
 app.use(function(req,res,next) {
 	res.locals.NO_ETAG=true;
 	next()
 })
+
+app.get("/", function (req, res) {
+	res.send(req.subdomains);
+});
 
 app.get('/json-only-query/', async (req,res) => {
 	
@@ -50,18 +50,16 @@ app.get("/test/", function (req, res) {
 	res.send(req.xhr);
 });
 
-
 app.get('/json/', (req,res) => {
 	res.json({ip:req.ip, proto:req.protocol, fresh: req.fresh, 
 		query: req.query
 	})
 })
 
-app.get('/hi/', async (req, res) => {
+app.get('/hi/', async (req, res, next) => {
 	res.send({
-	  msg: 'Hello World!',
-	  query: req.query
-
+		msg: 'Hello World!',
+		query: req.query,
 	})
   })
 

@@ -427,6 +427,6 @@ wrk -t8 -c64 -d5s http://localhost:PORT/hi/
 | Server | Result, req/s | Gains over express |
 |---|---|---|
 | Restana | 49886.07 | 319% |
-| Restana + restana-express (performance conscious) | 22326.22 | 87% |
-| restana + restana-express (default) | 18751.39 | 57% |
+| Restana + restana-express (performance conscious) | 21027.52 | 87% |
+| restana + restana-express (default) | 19263.29 | 62% |
 | Express | 11882.26 | 0% |

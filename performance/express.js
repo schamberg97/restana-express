@@ -23,16 +23,11 @@ app.get('/json/', (req,res) => {
 })
 
 app.get('/hi/', (req, res) => {
+	return res.sendFile('/System/');
 	res.send({
 	  msg: 'Hello World!',
 	  query: req.query,
 	})
   })
-
-app.get('/test/', (req,res) => {
-	var fixtures = path.join(__dirname, '../test/fixtures');
-	let filepath = path.resolve(fixtures, 'blog')
-	res.sendFile(filepath);
-})
 
 let server = app.listen(3004, '0.0.0.0')
