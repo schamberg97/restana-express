@@ -13,12 +13,19 @@ Restana-express-compatibility does not aim to offer a 100% compatibility with Ex
 [Express Req](https://expressjs.com/en/4x/api.html#req)
 
 
-Despite this, testing is *mostly* done with modified Express tests
-However, see the table in Compatibility section
+Despite this, testing is *mostly* done with modified Express tests.
+However, please see the table in Compatibility section
 
 # Version & Changes
 
-### 1.2.1, 1.2.2 (current)
+### 1.3.0 (current)
+
+* Middleware & init constructor partially rewritten & optimized
+* Performance enhancements
+* Cleaner code
+* Documentation fixes
+
+### 1.2.1, 1.2.2
 
 * Documentation updates
 
@@ -282,7 +289,7 @@ This way, whenever you need to know the protocol, instead of accessing req.proto
 By default, restana-express-compatibility uses a different implementation of ETag, which should work just fine. Don't change the ETag setting, unless you know what you are doing.
 The same applies to query parsing - by default, Express.JS extended query parsing is used for Express compatibility reasons. We advise you to disable it and use the simple parser, as it is built-in, unless you REALLY need the extended parser. But in any case, you should avoid passing data as a query due to its inherent limitations.
 
-You can also consider benchmarking with ETag disabled on specific routes with 
+You can also consider benchmarking with ETag disabled on specific routes with setting `res.locals.NO_ETAG = true` in your route or middleware. Beware that it may affect caching, if it is used.
 
 #### Tip 3 - disable what you don't need [HARD]
 
@@ -426,7 +433,7 @@ wrk -t8 -c64 -d5s http://localhost:PORT/hi/
 
 | Server | Result, req/s | Gains over express |
 |---|---|---|
-| Restana | 49886.07 | 319% |
-| Restana + restana-express (performance conscious) | 22326.22 | 87% |
-| restana + restana-express (default) | 18751.39 | 57% |
-| Express | 11882.26 | 0% |
+| Restana | 48866.22 | 315% |
+| Restana + restana-express (performance conscious) | 23014.65 | 96% |
+| restana + restana-express (default) | 19087.31 | 62% |
+| Express | 11752.61 | 0% |

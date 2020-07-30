@@ -4,16 +4,15 @@
 var expRes_ = require('./lib/res.js')
 var expReq_ = require('./lib/req.js')
 
-var expRes
-var expReq
-
-var parseUrl = require('parseurl');
-
-let reimplementedProperties = ['protocol', 'ip', 'ips', 'hostname', 'subdomains', 'fresh', "stale", 'xhr', 'secure']
-
+var expRes = {}
+var expReq = {}
 
 function init(options) {
-	if (!options) throw new Error('restana-express-compatibility requires options')
+
+	let reimplementedProperties = ['protocol', 'ip', 'ips', 'hostname', 'subdomains', 'fresh', "stale", 'xhr', 'secure', 'query']
+	this.reimplementedPropertiesGetterList = {}
+	if (!options || typeof options !== 'object') throw new Error('restana-express-compatibility requires options')
+
 	if (options.res) {
 		let resToUse = options.res.toUse
 		let resToDisable = Array.isArray(options.res.toDisable) ? options.res.toDisable : []
@@ -30,59 +29,123 @@ function init(options) {
 		let reqToDisable = Array.isArray(options.req.toDisable) ? options.req.toDisable : []
 		expReq = new expReq_(reqToUse, reqToDisable, options.req).expReq
 	}
+	reimplementedProperties = reimplementedProperties.filter((item) => {
+		let retain = false
+		if (expReq[item+"PropFn"]) retain = true
+		return retain
+	})
 
+	if (options.req.propertiesAsFunctions) {
+		reimplementedProperties.forEach((name, index) => {
+			if (expReq[name + "PropFn"] && name !== 'query') {
+				expReq[name] = expReq[name + "PropFn"]
+				delete expReq[name + "PropFn"]
+				if (index === reimplementedProperties.length - 1) reimplementedProperties = []
+			}
+			else if (name === "query") {
+				this.reimplementedPropertiesGetterList[name] = {
+					configurable: true,
+					enumerable: true,
+					get: expReq["queryPropFn"]
+				}
+			}
+		})
+	}
+	else {
+		reimplementedProperties.forEach((name, index) => {
+			if (expReq[name + "PropFn"]) {
+				this.reimplementedPropertiesGetterList[name] = {
+					configurable: true,
+					enumerable: true,
+					get: expReq[name + "PropFn"]
+				}
+			}
+		})
+		
+	}
 
 	this.etagFn = compileETag(options.res.etag)
+	if (typeof expReq.freshPropFn === "undefined" || !this.etagFn instanceof Function) {
+		this.cacheBlockFn = function(req, res, inp, code, headers, cb) {
+			if (304 === res.statusCode || 204 === res.statusCode) {
+				res.removeHeader('Content-Type');
+				res.removeHeader('Content-Length');
+				res.removeHeader('Transfer-Encoding');
+				return res.sendRestana(res.statusCode)
+			}
+			return res.sendRestana(inp, code, headers, cb)
+		}
+			
+	}
+	else {
+				
+		this.cacheBlockFn = function(req, res, inp, code, headers, cb) {
+			if (!res.locals.NO_ETAG) {
+				var generateETag = !res.getHeader('ETag')
+				if (generateETag) {
+					
+					let etag = parent.etagFn(inp.toString(), 'utf8')
+					res.setHeader('ETag', etag);
+				}
+			}
+			if ( (req.fresh instanceof Function && req.fresh()) || req.fresh === true) {
+				res.statusCode = 304
+			}
+			if (304 === res.statusCode || 204 === res.statusCode) {
+				res.removeHeader('Content-Type');
+				res.removeHeader('Content-Length');
+				res.removeHeader('Transfer-Encoding');
+				return res.sendRestana(res.statusCode)
+			}
+			return res.sendRestana(inp, code, headers, cb)
+		}
+	}
 
 	let parent = this
 
 	this.middleware = async function (req, res, next) {
-		let oldResSend = res.send
-		
 
+		res = Object.assign(res, expRes)
+		req = Object.assign(req, expReq)
+
+		let oldResSend = res.send
 		res.sendRestana = oldResSend
+
 		res.locals = res.locals || {}
+
 		res.__restanaExpressResOptions = options.res
 		req.__restanaExpressReqOptions = options.req
 
 		req.res = res
-		res.req = req	
+		res.req = req
+		res.cacheBlockFn = parent.cacheBlockFn
 
-		req.next = function(...err) {
-			if (err.length) {
-				return oldResSend(err)
+		req.next = function(...args) {
+			if (args.length) {
+				if (process.env.NODE_ENV === "production" && typeof args[0] === "object") {
+					if (args[0].statusCode === 404) {
+						res.statusCode = 404;
+						return res.end('404')
+					}
+					args[0].syspath = args[0].path
+					args[0].path = req.path
+					args[0] = {
+						path: args[0].path,
+						expose: args[0].expose,
+						statusCode: args[0].statusCode,
+						status: args[0].status,
+					}
+				}
+				return oldResSend(args)
 			}
 			else {
 				oldResSend(404, 404)
 			}
 		} 
 
-		res.__restanaExpressResOptions.etagFn = parent.etagFn
-		
-		res = Object.assign(res, expRes)
-		req = Object.assign(req, expReq)
-		
+		Object.defineProperties(req, parent.reimplementedPropertiesGetterList)
 
-		if (req.query_) req.query = req.query_(parseUrl(req).query)
-		if (!options.req.propertiesAsFunctions) {
-			reimplementedProperties.forEach((name) => {
-				if (req[name + "PropFn"]) {
-					//req[name]=req[name + "PropFn"](req, res)
-					defineGetter(req, name, function () {
-						return req[name + "PropFn"](req, res)
-					});
-				}
-			})
-		}
-		else {
-			reimplementedProperties.forEach((name) => {
-				if (req[name + "PropFn"]) {
-					req[name] = req[name + "PropFn"]
-				}
-			})
-		}
-
-		res.send = function (inp, code = this.statusCode, headers, cb) {
+		res.send = function (inp, code = res.statusCode, headers, cb) {
 			
 			if (inp instanceof Error) return oldResSend(inp, code, headers, cb)
 
@@ -102,49 +165,14 @@ function init(options) {
 					}
 					break
 			}
+			parent.cacheBlockFn(req, res, inp, code, headers, cb)
 			
-			var etagFn = this.__restanaExpressResOptions.etagFn
-			if (!res.locals.NO_ETAG && etagFn instanceof Function && typeof req.fresh !== 'undefined') {
-				var generateETag = !this.getHeader('ETag')
-				if (generateETag) {
-					let etag = etagFn(inp.toString(), 'utf8')
-					this.setHeader('ETag', etag);
-				}
-				if (( (req.fresh instanceof Function && req.fresh()) || req.fresh === true )) {
-					code = this.statusCode = 304;
-					this.removeHeader('Content-Type');
-					this.removeHeader('Content-Length');
-					this.removeHeader('Transfer-Encoding');
-					inp = '';
-					return oldResSend(inp, code, headers, cb)
-				}
-				else if (204 === this.statusCode || 304 === this.statusCode) {
-					this.removeHeader('Content-Type');
-					this.removeHeader('Content-Length');
-					this.removeHeader('Transfer-Encoding');
-					inp = '';
-					return oldResSend(inp, code, headers, cb)
-				}
-			}
-			
-			return oldResSend(inp, code, headers, cb)
 		}
 
 		return next()
 	}
 	
 }
-
-function defineGetter(obj, name, getter) {
-	Object.defineProperty(obj, name, {
-		configurable: true,
-		enumerable: true,
-		get: getter
-	});
-}
-
-//var expressETag = expressCreateETagGenerator({ weak: false })
-//var weakExpressETag = expressCreateETagGenerator({ weak: true })
 
 function expressCreateETagGenerator (options) {
 	var etag = require('@tinyhttp/etag');
@@ -191,8 +219,5 @@ function compileETag(etagSettings) {
 
 	return fn;
 }
-
-
-
 
 module.exports = init

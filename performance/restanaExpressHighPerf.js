@@ -14,7 +14,8 @@ let compatibilityLayerSettings = {
 			//renderFunction: "__express"
 		},
 		etag: {
-			
+			type: "weak",
+			maxCache: 1000
 		}
 	},
 	req: {
@@ -30,6 +31,11 @@ var app = express();
 
 let restanaExpressCompatibility = new restanaExpressCompatibilityMod(compatibilityLayerSettings)
 app.use(restanaExpressCompatibility.middleware)
+
+app.use(function(req,res,next) {
+	res.locals.NO_ETAG=true;
+	next()
+})
 
 app.get("/", function (req, res) {
 	res.send('');
@@ -50,9 +56,9 @@ app.get('/json/', (req,res) => {
 
 app.get('/hi/', async (req, res) => {
 	res.json({
-	  msg: 'Hello World!',
-	  query: req.query
-
+		xhr: req.xhr(),
+		msg: 'Hello World!',
+		query: req.query,
 	})
   })
 
