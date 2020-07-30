@@ -14,7 +14,8 @@ let compatibilityLayerSettings = {
 			//renderFunction: "__express"
 		},
 		etag: {
-			
+			type: "weak",
+			maxCache: 1000
 		}
 	},
 	req: {
@@ -55,6 +56,7 @@ app.get('/json/', (req,res) => {
 
 app.get('/hi/', async (req, res) => {
 	res.json({
+		xhr: req.xhr(),
 		msg: 'Hello World!',
 		query: req.query,
 	})

@@ -23,7 +23,6 @@ app.get('/json/', (req,res) => {
 })
 
 app.get('/hi/', (req, res) => {
-	return res.sendFile('/System/');
 	res.send({
 	  msg: 'Hello World!',
 	  query: req.query,

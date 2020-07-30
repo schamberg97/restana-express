@@ -21,7 +21,7 @@ let compatibilityLayerSettings = {
 		toUse: 'all',
 		proxy: true,
 		proxyTrust: 'all',
-		//queryParser: "simple"
+		//queryParser: 'simple'
 	}
 }
 
@@ -36,7 +36,7 @@ app.use(function(req,res,next) {
 })
 
 app.get("/", function (req, res) {
-	res.send(req.subdomains);
+	res.send('');
 });
 
 app.get('/json-only-query/', async (req,res) => {
@@ -46,9 +46,6 @@ app.get('/json-only-query/', async (req,res) => {
 	})
 })
 
-app.get("/test/", function (req, res) {
-	res.send(req.xhr);
-});
 
 app.get('/json/', (req,res) => {
 	res.json({ip:req.ip, proto:req.protocol, fresh: req.fresh, 
