@@ -13,8 +13,8 @@ Restana-express-compatibility does not aim to offer a 100% compatibility with Ex
 [Express Req](https://expressjs.com/en/4x/api.html#req)
 
 
-Despite this, testing is *mostly* done with modified Express tests
-However, see the table in Compatibility section
+Despite this, testing is *mostly* done with modified Express tests.
+However, please see the table in Compatibility section
 
 # Version & Changes
 
