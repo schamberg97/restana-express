@@ -1,4 +1,4 @@
-### 1.3.1 (current)
+### 1.3.2 (current)
 
 * Changelog moved to CHANGELOG.md
 * Some repository fixes
