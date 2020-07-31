@@ -2,8 +2,6 @@
 logs
 *.log
 
-package-lock.json
-
 # Fix nasty .DS_Store
 .DS_Store
 
